@@ -1,8 +1,9 @@
-import os
 import json
+import os
+import parse
 from typing import Optional
 
-from mcdreforged.api.rtext import RAction, RText, RColor, RTextList
+from mcdreforged.api.rtext import RAction, RColor, RText, RTextList
 from mcdreforged.api.types import PluginServerInterface
 
 from online.RCon import MCRcon, MCRconException
@@ -32,7 +33,6 @@ def main(host, port, password):  # 连接服务器
 
 
 def get_server_rtext(name):
-    global config
     if config['click_event']:
         return RText(name, color=RColor.aqua).c(RAction.run_command, f"/server {name}")
     else:
@@ -48,13 +48,25 @@ def get_list():  # 获得玩家列表
         port = config['servers'][name]['port']
         password = config['servers'][name]['password']
         try:
-            result = main(host, port, password)
-            if result[10] != '0':
-                player_list = result[int(result.find(':')) + 1:]
-                player_number = result.count(',') + 1
-            else:
-                player_list = ''
-                player_number = 0
+            response = main(host, port, password)
+
+            formatters = (
+                # <1.16
+                # There are 6 of a max 100 players online: 122, abc, xxx, www, QwQ, bot_tob
+                r'There are {amount:d} of a max {limit:d} players online:{players}',
+                # >=1.16
+                # There are 1 of a max of 20 players online: Fallen_Breath
+                r'There are {amount:d} of a max of {limit:d} players online:{players}',
+            )
+
+            player_number = 0
+            players_str = ''
+            for formatter in formatters:
+                parsed = parse.parse(formatter, response)
+                if parsed is not None and parsed['players'].startswith(' '):
+                    player_number = parsed['amount']
+                    players_str = parsed['players'][1:]
+
             list_text += RTextList(
                 get_server_rtext(name),
                 RText(" 在线人数:", color=RColor.gray),
@@ -63,7 +75,7 @@ def get_list():  # 获得玩家列表
             if player_number != 0:
                 list_text += RTextList(
                     RText(" 在线列表:", color=RColor.gray),
-                    RText(player_list, RColor.gold)
+                    RText(players_str, RColor.gold)
                 )
             list_text += "\n"
         except:
