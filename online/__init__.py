@@ -1,5 +1,7 @@
 import os
 import json
+from typing import Optional
+
 from mcdreforged.api.rtext import RAction, RText, RColor, RTextList
 from mcdreforged.api.types import PluginServerInterface
 
@@ -7,17 +9,19 @@ from online.RCon import MCRcon, MCRconException
 
 # 默认参数，不要修改
 configPath = 'config/online.json'
-defaultConfig = '''
-{
-    "join": true,
-    "click_event": true,
-    "1":{
-        "name": "ServerA",
-        "host": "127.0.0.1",
-        "port": "25575",
-        "password": "ServerAPassword"
+defaultConfig = {
+    "join": True,
+    "click_event": True,
+    "servers": {
+        "serverA": {
+            "host": "127.0.0.1",
+            "port": 25575,
+            "password": "ServerAPassword"
+        }
     }
-}'''
+}
+
+config: Optional[dict] = None
 
 
 def main(host, port, password):  # 连接服务器
@@ -27,28 +31,8 @@ def main(host, port, password):  # 连接服务器
     return response
 
 
-def get_config():  # 加载配置文件
-    if not os.path.exists(configPath):  # 若文件不存在则写入默认值
-        with open(configPath, 'w+', encoding='UTF-8') as f:
-            f.write(defaultConfig)
-    with open('config/online.json', 'r', encoding='UTF-8') as f:
-        config = json.load(f, encoding='UTF-8')
-    return config
-
-
-def get_number():  # 获取服务器数量
-    config = get_config()
-    number = 1
-    try:
-        while config[str(number + 1)]:
-            number += 1
-    except:
-        pass
-    return number
-
-
 def get_server_rtext(name):
-    config = get_config()
+    global config
     if config['click_event']:
         return RText(name, color=RColor.aqua).c(RAction.run_command, f"/server {name}")
     else:
@@ -56,16 +40,13 @@ def get_server_rtext(name):
 
 
 def get_list():  # 获得玩家列表
-    times = 0
+    global config
     list = ''
-    config = get_config()
-    number = get_number()
-    while times < number:
-        server = config[str(times + 1)]
-        name = server['name']
-        host = server['host']
-        port = int(server['port'])
-        password = server['password']
+    for server in config['servers']:
+        name = server
+        host = config['servers'][name]['host']
+        port = config['servers'][name]['port']
+        password = config['servers'][name]['password']
         try:
             result = main(host, port, password)
             if result[10] != '0':
@@ -85,13 +66,34 @@ def get_list():  # 获得玩家列表
                     RText(player_list, RColor.gold)
                 )
             list += "\n"
-        except MCRconException:
+        except:
             list += RTextList(
                 RText(name, color=RColor.aqua),
                 RText(" 未开启\n", color=RColor.red)
             )
-        times += 1
     return list
+
+
+def convent_config(server: PluginServerInterface):
+    # server.logger.info("检测到旧的配置文件, 进行升级中...")
+    old_config: dict = json.load(open(configPath))
+    new_config = {'servers': {}}
+    i = 1
+    while True:
+        if str(i) in old_config:
+            rcon_server = old_config.pop(str(i))
+            server_name = rcon_server.pop('name')
+            new_config['servers'][server_name] = rcon_server
+            new_config['servers'][server_name]['port'] = int(rcon_server['port'])
+            i += 1
+        else:
+            break
+    values = ["join", "click_event"]
+    for var in values:
+        if var in old_config:
+            new_config[var] = old_config.pop(var)
+    os.remove(configPath)
+    server.save_config_simple(new_config)
 
 
 def on_info(server: PluginServerInterface, info):  # 指令显示
@@ -100,10 +102,13 @@ def on_info(server: PluginServerInterface, info):  # 指令显示
 
 
 def on_player_joined(server: PluginServerInterface, player, info):  # 进服提示
-    config = get_config()
     if config['join']:
         server.tell(player, get_list())
 
 
 def on_load(server: PluginServerInterface, old):  # 添加帮助
+    global config
     server.register_help_message('!!online', '查询在线列表/人数')
+    if os.path.exists(configPath):
+        convent_config(server)
+    config = server.load_config_simple(default_config=defaultConfig)
