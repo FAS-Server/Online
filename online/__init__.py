@@ -1,12 +1,13 @@
 import os
 import json
 from mcdreforged.api.rtext import RAction, RText, RColor, RTextList
+from mcdreforged.api.types import PluginServerInterface
 
-from online.RCon import MCRcon
+from online.RCon import MCRcon, MCRconException
 
 # 默认参数，不要修改
 configPath = 'config/online.json'
-defultConfig = '''
+defaultConfig = '''
 {
     "join": true,
     "click_event": true,
@@ -29,7 +30,7 @@ def main(host, port, password):  # 连接服务器
 def get_config():  # 加载配置文件
     if not os.path.exists(configPath):  # 若文件不存在则写入默认值
         with open(configPath, 'w+', encoding='UTF-8') as f:
-            f.write(defultConfig)
+            f.write(defaultConfig)
     with open('config/online.json', 'r', encoding='UTF-8') as f:
         config = json.load(f, encoding='UTF-8')
     return config
@@ -84,7 +85,7 @@ def get_list():  # 获得玩家列表
                     RText(player_list, RColor.gold)
                 )
             list += "\n"
-        except:
+        except MCRconException:
             list += RTextList(
                 RText(name, color=RColor.aqua),
                 RText(" 未开启\n", color=RColor.red)
@@ -93,16 +94,16 @@ def get_list():  # 获得玩家列表
     return list
 
 
-def on_info(server, info):  # 指令显示
+def on_info(server: PluginServerInterface, info):  # 指令显示
     if info.content == '!!online':
         server.say(get_list())
 
 
-def on_player_joined(server, player, info):  # 进服提示
+def on_player_joined(server: PluginServerInterface, player, info):  # 进服提示
     config = get_config()
     if config['join']:
         server.tell(player, get_list())
 
 
-def on_load(server, old):  # 添加帮助
+def on_load(server: PluginServerInterface, old):  # 添加帮助
     server.register_help_message('!!online', '查询在线列表/人数')
