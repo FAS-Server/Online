@@ -5,6 +5,7 @@ from typing import Optional
 
 from mcdreforged.api.rtext import RAction, RColor, RText, RTextList
 from mcdreforged.api.types import PluginServerInterface
+from mcdreforged.api.command import Literal
 
 from online.RCon import MCRcon, MCRconException
 
@@ -108,11 +109,6 @@ def convent_config(server: PluginServerInterface):
     server.save_config_simple(new_config)
 
 
-def on_info(server: PluginServerInterface, info):  # 指令显示
-    if info.content == '!!online':
-        server.say(get_list())
-
-
 def on_player_joined(server: PluginServerInterface, player, info):  # 进服提示
     if config['join']:
         server.tell(player, get_list())
@@ -121,6 +117,7 @@ def on_player_joined(server: PluginServerInterface, player, info):  # 进服提�
 def on_load(server: PluginServerInterface, old):  # 添加帮助
     global config
     server.register_help_message('!!online', '查询在线列表/人数')
+    server.register_command(Literal('!!online').runs(lambda: server.say(get_list())))
     if os.path.exists(configPath):
         convent_config(server)
     config = server.load_config_simple(default_config=defaultConfig)
