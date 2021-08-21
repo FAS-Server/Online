@@ -41,7 +41,7 @@ def get_server_rtext(name):
 
 def get_list():  # 获得玩家列表
     global config
-    list = ''
+    list_text = ''
     for server in config['servers']:
         name = server
         host = config['servers'][name]['host']
@@ -55,23 +55,23 @@ def get_list():  # 获得玩家列表
             else:
                 player_list = ''
                 player_number = 0
-            list += RTextList(
+            list_text += RTextList(
                 get_server_rtext(name),
                 RText(" 在线人数:", color=RColor.gray),
                 RText(str(player_number), color=RColor.green)
             )
             if player_number != 0:
-                list += RTextList(
+                list_text += RTextList(
                     RText(" 在线列表:", color=RColor.gray),
                     RText(player_list, RColor.gold)
                 )
-            list += "\n"
+            list_text += "\n"
         except:
-            list += RTextList(
+            list_text += RTextList(
                 RText(name, color=RColor.aqua),
                 RText(" 未开启\n", color=RColor.red)
             )
-    return list
+    return list_text
 
 
 def convent_config(server: PluginServerInterface):
