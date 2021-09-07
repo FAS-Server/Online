@@ -9,7 +9,6 @@ from mcdreforged.api.decorator import new_thread
 from multi_rcon_api.multi_rcon import MultiRcon
 
 
-# 默认参数，不要修改
 configPath = 'config/online.json'
 defaultConfig = {
     "join": True,
@@ -17,6 +16,11 @@ defaultConfig = {
 }
 
 config: Optional[dict] = None
+
+
+def tr(translation_key: str):
+    server = PluginServerInterface.get_instance()
+    return server.tr("online.{}".format(translation_key))
 
 
 def get_server_rtext(name):
@@ -40,7 +44,7 @@ def get_list(src: Union[CommandSource, str]):  # 获得玩家列表
         r'There are {amount:d} of a max of {limit:d} players online:{players}',
     )
     for server in query_result:
-        list_text += get_server_rtext(server)
+        list_text += get_server_rtext(server) + ' '
 
         res = query_result.get(server)
         if res.get('connected'):
@@ -51,34 +55,34 @@ def get_list(src: Union[CommandSource, str]):  # 获得玩家列表
                     players_str = parsed['players'][1:]
 
                     list_text += RTextList(
-                        RText(" 在线人数:", color=RColor.gray),
-                        RText(str(player_number), color=RColor.green)
+                        RText(tr("total_online_num"), color=RColor.gray),
+                        RText(' ' + str(player_number), color=RColor.green)
                     )
                     if player_number != 0:
                         list_text += RTextList(
-                            RText(" 在线列表:", color=RColor.gray),
-                            RText(players_str, RColor.gold)
+                            ' ',
+                            RText(tr("online_player_list"), color=RColor.gray),
+                            RText(' ' + players_str, RColor.gold)
                         )
                     break
             else:
-                list_text += RText('列表无法解析!', color=RColor.red)
-
-            list_text += "\n"
+                list_text += RText(tr('unparseable_list'), color=RColor.red)
         else:
-            list_text += RText(" 未开启\n", color=RColor.red)
+            list_text += RText(tr('server_stopped'), color=RColor.red)
+        list_text += "\n"
     if isinstance(src, str):
         PluginServerInterface.get_instance().tell(src, list_text)
     else:
         src.reply(list_text)
 
 
-def on_player_joined(server, player, info):  # 进服提示
+def on_player_joined(server, player, info):
     if config['join']:
         get_list(player)
 
 
-def on_load(server: PluginServerInterface, old):  # 添加帮助
+def on_load(server: PluginServerInterface, old):
     global config
-    server.register_help_message('!!online', '查询在线列表/人数')
+    server.register_help_message('!!online', tr('help'))
     server.register_command(Literal('!!online').runs(lambda src: get_list(src)))
     config = server.load_config_simple(default_config=defaultConfig)

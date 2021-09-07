@@ -1,0 +1,6 @@
+online:
+  help: Query the online player lists
+  total_online_num: "Total Online:"
+  online_player_list: "Online players:"
+  server_stopped: Stopped!
+  unparseable_list: Unparseable!

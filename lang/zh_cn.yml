@@ -1,0 +1,6 @@
+online:
+  help: 查询在线列表/人数
+  total_online_num: "在线人数:"
+  online_player_list: "在线列表:"
+  server_stopped: 未开启!
+  unparseable_list: 列表无法解析!
