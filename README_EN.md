@@ -1,5 +1,7 @@
 # Online
 
+![MCDReforged](https://img.shields.io/badge/dynamic/json?label=MCDReforged&query=dependencies.mcdreforged&url=https%3A%2F%2Fraw.githubusercontent.com%2FFAS-Server%2FOnline%2Fmaster%2Fmcdreforged.plugin.json&style=plastic) ![license](https://img.shields.io/github/license/FAS-Server/Online?style=plastic) ![build status](https://img.shields.io/github/workflow/status/FAS-Server/Online/CI%20for%20MCDR%20Plugin?label=build&style=plastic) ![Release](https://img.shields.io/github/v/release/FAS-Server/Online?style=plastic) ![total download](https://img.shields.io/github/downloads/FAS-Server/Online/total?label=total%20download&style=plastic)
+
 [简体中文](./README.md) | **English**
 
 An [MCDReforged](https://github.com/Fallen-Breath/MCDReforged) plugin which can easily query the online players
