@@ -9,7 +9,6 @@ from mcdreforged.api.decorator import new_thread
 from multi_rcon_api.multi_rcon import MultiRcon
 
 
-configPath = 'config/online.json'
 defaultConfig = {
     "join": True,
     "click_event": True
