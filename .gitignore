@@ -1,3 +1,4 @@
 .idea
-multi_rcon_api/
+multi_rcon_api
 *.mcdr
+*/__pycache__
