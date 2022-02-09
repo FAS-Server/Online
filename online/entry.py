@@ -68,6 +68,7 @@ def get_list(src: Union[CommandSource, str]):  # 获得玩家列表
                     break
             else:
                 list_text += RText(tr('unparseable_list'), color=RColor.red)
+                src.get_server().as_plugin_server_interface().logger.warning(f"Cant parse text: {res['data']}")
         else:
             list_text += RText(tr('server_stopped'), color=RColor.red)
         list_text += "\n"
