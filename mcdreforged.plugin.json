@@ -1,7 +1,7 @@
 {
     "id": "online",
     "name": "Online",
-    "version": "1.4.0",
+    "version": "1.4.1-alpha1",
     "link": "https://github.com/FAS-Server/online",
     "author": [
         "A_jiuA", "Nine_King", "YehowahLiu"
@@ -15,5 +15,11 @@
         "multi_rcon_api": ">=1.0.0"
     },
     "entrypoint": "online.entry",
-    "resources": ["lang"]
+    "resources": [
+        "lang",
+        "README.md",
+        "README_EN.md",
+        "LICENSE"
+    ],
+    "archive_name": "Online-{version}.pyz"
 }
