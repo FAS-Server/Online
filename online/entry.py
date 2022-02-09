@@ -38,9 +38,11 @@ def get_list(src: Union[CommandSource, str]):  # 获得玩家列表
     formatters = (
         # <1.16
         # There are 6 of a max 100 players online: 122, abc, xxx, www, QwQ, bot_tob
+        r'There are {amount:d} of a max {limit:d} players online:{players}There are {dummy}',
         r'There are {amount:d} of a max {limit:d} players online:{players}',
         # >=1.16
         # There are 1 of a max of 20 players online: Fallen_Breath
+        r'There are {amount:d} of a max of {limit:d} players online:{players}There are {dummy}',
         r'There are {amount:d} of a max of {limit:d} players online:{players}',
     )
     for server in query_result:
